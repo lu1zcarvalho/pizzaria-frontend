@@ -1,9 +1,58 @@
-import styles from '@/app/page.module.scss'
+import styles from './page.module.scss'
 import logoImg from '/public/logo.svg'
-import Image from 'next/image';
-import Link from 'next/link';
+import Image from 'next/image'
+import Link from 'next/link'
+import { api } from '@/services/api'
+import { redirect } from 'next/navigation'
+import { cookies } from 'next/headers'
 
-export default function Home() {
+export default function Page() {
+
+  async function handleLogin(formData: FormData) {
+    "use server";
+  
+    const email = formData.get("email");
+    const password = formData.get("password");
+  
+    if (!email || !password || typeof email !== "string" || typeof password !== "string") {
+      console.log("Email ou senha vazios ou inválidos:", { email, password });
+      return;
+    }
+  
+    try {
+      console.log("Enviando dados para login:", { email, password });
+  
+      const response = await api.post("/session", {
+        email,
+        password,
+      });
+  
+      if (!response.data.token) {
+        console.log("Token não recebido");
+        return;
+      }
+  
+      console.log("Login bem-sucedido:", response.data);
+  
+      const expressTime = 60 * 60 * 24 * 30 * 1000;
+      const cookieStore = await cookies();
+      
+      cookieStore.set("session", response.data.token, {
+        maxAge: expressTime,
+        path: "/",
+        httpOnly: false,
+        secure: process.env.NODE_ENV === "production"
+      })
+  
+      
+    } catch (err: any) {
+      console.log("Erro na requisição:", err.response?.data || err.message);
+      return;
+    }
+
+    redirect("/dashboard");
+  }
+
   return (
     <>
       <div className={styles.containerCenter}>
@@ -13,12 +62,12 @@ export default function Home() {
         />
 
         <section className={styles.login}>
-          <form>
+          <form action={handleLogin}>
             <input
               type="email"
               required
               name="email"
-              placeholder='Digite seu email...'
+              placeholder="Digite seu email..."
               className={styles.input}
             />
 
@@ -26,7 +75,7 @@ export default function Home() {
               type="password"
               required
               name="password"
-              placeholder='**********'
+              placeholder="***********"
               className={styles.input}
             />
 
@@ -40,7 +89,8 @@ export default function Home() {
           </Link>
 
         </section>
+
       </div>
     </>
-  );
+  )
 }
