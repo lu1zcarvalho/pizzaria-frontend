@@ -12,30 +12,28 @@
     align-items: center;
     justify-content: space-between;
 
-
-
-    nav{
+    nav {
         display: flex;
         align-items: center;
         gap: 14px;
 
-        a{
+        a {
             color: var(--white);
             text-decoration: none;
             transition: color 0.8s;
-
-            &:hover{
+            font-weight: 600; 
+            &:hover {
                 color: var(--red-900);
             }
         }
 
-        button{
+        button {
             border: 0;
             background: transparent;
             margin-left: 16px;
-            transition: transform 0.5;
+            transition: transform 0.5s;
 
-            &:hover{
+            &:hover {
                 transform: scale(1.2);
             }
         }
